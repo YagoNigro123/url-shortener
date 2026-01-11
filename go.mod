@@ -1,3 +1,3 @@
-module github.com/TU_USUARIO/url-shortener
+module github.com/YagoNigro123/url-shortener
 
 go 1.25.2

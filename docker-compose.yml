@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # 1. Base de datos SQL (Cumple requisito SQL)
+  postgres:
+    image: postgres:16-alpine
+    container_name: shortener_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shortener_db
+    ports:
+      - "5432:5432" # Puerto PC : Puerto Contenedor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Base de datos NoSQL / Caché (Cumple requisito NoSQL)
+  redis:
+    image: redis:7-alpine
+    container_name: shortener_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
