@@ -25,7 +25,7 @@ func (s *Service) Shorten(originalURL string) (*Link, error) {
 	link := &Link{
 		ID:       id,
 		Original: originalURL,
-		CreateAt: time.Now(),
+		CreatedAt: time.Now(),
 		Visits:   0,
 	}
 

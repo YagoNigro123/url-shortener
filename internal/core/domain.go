@@ -3,10 +3,10 @@ package core
 import "time"
 
 type Link struct {
-	ID       string    `json:"id"`
-	Original string    `json:original` // https://google.com
-	CreateAt time.Time `json:create_at`
-	Visits   int       `json:visits`
+	ID        string    `json:"id"`
+	Original  string    `json:"original"`   // <--- Agregué comillas
+	CreatedAt time.Time `json:"created_at"` // <--- Corregí el nombre (Agregué la 'd') y las comillas
+	Visits    int       `json:"visits"`     // <--- Agregué comillas
 }
 
 type LinkStore interface {

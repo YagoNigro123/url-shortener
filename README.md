@@ -21,3 +21,10 @@ I focused on the **Hexagonal Architecture** principles (or Layered Architecture)
 * **Polymorphism:** The `LinkStore` interface decouples the logic from the storage, allowing future implementations of Redis or PostgreSQL without changing the core code.
 * **Business Logic:** Implemented the `Service` struct to handle URL shortening using a random ID generator.
 * **Dependency Injection:** Applied DI pattern in the `NewService` constructor to inject the storage implementation.
+
+### Day 3: Persistence Layer & Entrypoint
+I integrated the PostgreSQL database with the Go application to ensure data persistence.
+
+* **PostgreSQL Adapter:** Implemented the `PostgresStore` struct using the `database/sql` package. Used **Parameterized Queries** ($1, $2) to prevent SQL Injection.
+* **Schema Migration:** Created and executed `schema.sql` to define the database structure (`links` table) and indexes directly inside the Docker container.
+* **Main Entrypoint:** Orchestrated the application startup. I connected the components by injecting the concrete `PostgresStore` into the `Service` (Dependency Injection).
