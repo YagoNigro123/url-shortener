@@ -1,14 +1,19 @@
-package main 
+package main
 
 import (
 	"fmt"
 	"log"
+	"net/http"
 
+	"github.com/YagoNigro123/url-shortener/internal/api"
 	"github.com/YagoNigro123/url-shortener/internal/core"
 	"github.com/YagoNigro123/url-shortener/internal/store"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
-func main(){
+func main() {
 	connStr := "postgres://user:password@localhost:5432/shortener_db?sslmode=disable"
 
 	postgressStore, err := store.NewPostgresStore(connStr)
@@ -18,20 +23,20 @@ func main(){
 
 	//defer postgresStore().Close()
 
-	service := core.NewService(postgressStore)
+	svc := core.NewService(postgressStore)
 
-	//test 
-	linkTest := "https://google.com"
-	fmt.Println("Shortener "+ linkTest +"...")
+	handler := api.NewHandler(svc)
 
-	link, err := service.Shorten(linkTest)
+	r := chi.NewRouter()
 
-	if err != nil{
-		log.Fatalf("Fail in shortener: %v", err)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	r.Post("/api/shorten", handler.CreateLink)
+	r.Get("/{id}", handler.Redirect)
+
+	fmt.Println("Server running on port 8080")
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatal("Server failed: %v", err)
 	}
-
-	fmt.Printf("Sucessfuly! \n")
-	fmt.Printf("Original URL: %s\n", link.Original)
-	fmt.Printf("Generated ID:  %s\n", link.ID)
-	fmt.Println("Check the database, it shuld be here")
 }

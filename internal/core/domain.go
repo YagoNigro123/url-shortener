@@ -4,9 +4,9 @@ import "time"
 
 type Link struct {
 	ID        string    `json:"id"`
-	Original  string    `json:"original"`   // <--- Agregué comillas
-	CreatedAt time.Time `json:"created_at"` // <--- Corregí el nombre (Agregué la 'd') y las comillas
-	Visits    int       `json:"visits"`     // <--- Agregué comillas
+	Original  string    `json:"original"`
+	CreatedAt time.Time `json:"created_at"`
+	Visits    int       `json:"visits"`
 }
 
 type LinkStore interface {

@@ -23,10 +23,10 @@ func (s *Service) Shorten(originalURL string) (*Link, error) {
 	id := generateShortID()
 
 	link := &Link{
-		ID:       id,
-		Original: originalURL,
+		ID:        id,
+		Original:  originalURL,
 		CreatedAt: time.Now(),
-		Visits:   0,
+		Visits:    0,
 	}
 
 	err := s.store.Save(link)
@@ -48,4 +48,8 @@ func generateShortID() string {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
+}
+
+func (s *Service) GetOriginal(id string) (*Link, error) {
+	return s.store.Find(id)
 }
