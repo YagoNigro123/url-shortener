@@ -28,3 +28,17 @@ I integrated the PostgreSQL database with the Go application to ensure data pers
 * **PostgreSQL Adapter:** Implemented the `PostgresStore` struct using the `database/sql` package. Used **Parameterized Queries** ($1, $2) to prevent SQL Injection.
 * **Schema Migration:** Created and executed `schema.sql` to define the database structure (`links` table) and indexes directly inside the Docker container.
 * **Main Entrypoint:** Orchestrated the application startup. I connected the components by injecting the concrete `PostgresStore` into the `Service` (Dependency Injection).
+
+### Day 4: RESTful API Implementation
+Transformed the CLI application into a fully functional Web Service using the **Chi** router.
+
+* **HTTP Layer:** Implemented the `Handler` struct to act as an adapter between the HTTP world (JSON) and the Core Domain.
+* **Endpoints:**
+  * `POST /api/shorten`: Accepts a JSON payload, validates input, and returns the shortened ID (Status `201 Created`).
+  * `GET /{id}`: Retrieves the original URL and performs an HTTP `301 Moved Permanently` redirection.
+* **Routing:** Integrated `github.com/go-chi/chi` for lightweight and idiomatic routing, including middleware for logging and recovery.
+
+
+curl -X POST http://localhost:8080/api/shorten \
+     -H "Content-Type: application/json" \
+     -d '{"original_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}'
