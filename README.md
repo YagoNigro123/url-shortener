@@ -38,6 +38,11 @@ Transformed the CLI application into a fully functional Web Service using the **
   * `GET /{id}`: Retrieves the original URL and performs an HTTP `301 Moved Permanently` redirection.
 * **Routing:** Integrated `github.com/go-chi/chi` for lightweight and idiomatic routing, including middleware for logging and recovery.
 
+### Day 5: Configuration & Security
+Refactored the application to follow **12-Factor App** principles regarding configuration.
+
+* **Environment Variables:** Removed hardcoded credentials. The application now reads configuration (`DB_URL`, `PORT`) from the system environment.
+* **Security:** Implemented `.env` file support using `godotenv` for local development, while ensuring secrets are excluded from version control via `.gitignore`.
 
 curl -X POST http://localhost:8080/api/shorten \
      -H "Content-Type: application/json" \
