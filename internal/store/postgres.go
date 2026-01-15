@@ -1,30 +1,31 @@
-package store 
+package store
 
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
+
 	"github.com/YagoNigro123/url-shortener/internal/core"
+	_ "github.com/lib/pq"
 )
 
-type PostgressStore struct {
+type PostgresStore struct {
 	db *sql.DB
 }
 
-func NewPostgresStore(connString string) (*PostgressStore, error){
-	db, err := sql.Open("postgres",connString)
-	if err != nil{
+func NewPostgresStore(connString string) (*PostgresStore, error) {
+	db, err := sql.Open("postgres", connString)
+	if err != nil {
 		return nil, fmt.Errorf("unable to open db connection: %w", err)
 	}
 
-	if err := db.Ping(); err != nil{
+	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("uneable to connect to db: %w", err)
 	}
 
-	return &PostgressStore{db:db}, nil
+	return &PostgresStore{db: db}, nil
 }
 
-func (s*PostgressStore) Save(link *core.Link) error {
+func (s *PostgresStore) Save(link *core.Link) error {
 	query := `
 		INSERT INTO links (id, original_url, created_at, visits)
 		VALUES ($1,$2,$3,$4)
@@ -44,7 +45,7 @@ func (s*PostgressStore) Save(link *core.Link) error {
 	return nil
 }
 
-func (s*PostgressStore) Find(id string) (*core.Link, error){
+func (s *PostgresStore) Find(id string) (*core.Link, error) {
 	query := `SELECT id, original_url, created_at, visits FROM links WHERE id = $1`
 
 	row := s.db.QueryRow(query, id)
@@ -58,7 +59,7 @@ func (s*PostgressStore) Find(id string) (*core.Link, error){
 		&link.Visits,
 	)
 
-	if err != nil{
+	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, core.ErrLinkNotFound
 		}
@@ -66,4 +67,8 @@ func (s*PostgressStore) Find(id string) (*core.Link, error){
 	}
 
 	return link, nil
+}
+
+func (s *PostgresStore) Close() error {
+	return s.db.Close()
 }

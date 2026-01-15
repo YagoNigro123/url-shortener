@@ -25,14 +25,22 @@ func main() {
 		log.Fatal("DB_URL environment variable is not set")
 	}
 
-	postgressStore, err := store.NewPostgresStore(dbURL)
+	postgresStore, err := store.NewPostgresStore(dbURL)
 	if err != nil {
 		log.Fatalf("error with conect to db: %v", err)
 	}
 
-	//defer postgresStore().Close()
+	defer postgresStore.Close()
 
-	svc := core.NewService(postgressStore)
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
+	}
+
+	redisClient := store.NewRedisClient(redisAddr, "")
+
+	svc := core.NewService(postgresStore, redisClient)
+
 	handler := api.NewHandler(svc)
 
 	r := chi.NewRouter()

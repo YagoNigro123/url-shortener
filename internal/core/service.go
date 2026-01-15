@@ -2,6 +2,8 @@ package core
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -13,10 +15,14 @@ var (
 
 type Service struct {
 	store LinkStore
+	cache LinkCache
 }
 
-func NewService(store LinkStore) *Service {
-	return &Service{store: store}
+func NewService(store LinkStore, cache LinkCache) *Service {
+	return &Service{
+		store: store,
+		cache: cache,
+	}
 }
 
 func (s *Service) Shorten(originalURL string) (*Link, error) {
@@ -29,10 +35,36 @@ func (s *Service) Shorten(originalURL string) (*Link, error) {
 		Visits:    0,
 	}
 
-	err := s.store.Save(link)
+	if err := s.store.Save(link); err != nil {
+		return nil, fmt.Errorf("Error saving to db: %w", err)
+	}
+
+	go func() {
+		if err := s.cache.Save(link.ID, link.Original); err != nil {
+			log.Printf("Error saving to cache: %v", err)
+		}
+	}()
+
+	return link, nil
+}
+
+func (s *Service) GetOriginal(id string) (*Link, error) {
+	cacheURL, err := s.cache.Get(id)
+
+	if err == nil {
+		return &Link{ID: id, Original: cacheURL}, nil
+	}
+
+	link, err := s.store.Find(id)
 	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		if err := s.cache.Save(link.ID, link.Original); err != nil {
+			log.Printf("Error updating cache: %v", err)
+		}
+	}()
 
 	return link, nil
 }
@@ -48,8 +80,4 @@ func generateShortID() string {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
 	return string(b)
-}
-
-func (s *Service) GetOriginal(id string) (*Link, error) {
-	return s.store.Find(id)
 }

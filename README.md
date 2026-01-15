@@ -44,6 +44,20 @@ Refactored the application to follow **12-Factor App** principles regarding conf
 * **Environment Variables:** Removed hardcoded credentials. The application now reads configuration (`DB_URL`, `PORT`) from the system environment.
 * **Security:** Implemented `.env` file support using `godotenv` for local development, while ensuring secrets are excluded from version control via `.gitignore`.
 
+### Day 6: Unit Testing & Quality Assurance
+Introduced a robust testing strategy for the Core domain.
+* **Unit Tests:** Implemented tests for the `Service` layer using `stretchr/testify`.
+* **Mocking:** Created a `MockStore` to isolate business logic from infrastructure dependencies, enabling true unit testing without a running database.
+* **Assertions:** Verified success scenarios and error handling logic.
+
+### Day 7: Performance & Scalability (Redis)
+Optimized the system for high concurrency using **Redis** as a caching layer.
+* **Caching Strategy:** Implemented the **Cache-Aside** pattern.
+    * *Read Path:* Checks Redis first (RAM); falls back to PostgreSQL (Disk) only on misses.
+    * *Write Path:* Asynchronous cache updates to minimize user latency.
+* **Architecture:** Injected `RedisClient` as a dependency into the Service, maintaining clean architecture principles.
+* **Result:** Drastically reduced database load and improved response times for frequently accessed links.
+
 curl -X POST http://localhost:8080/api/shorten \
      -H "Content-Type: application/json" \
      -d '{"original_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}'
