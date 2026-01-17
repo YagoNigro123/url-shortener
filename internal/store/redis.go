@@ -46,3 +46,7 @@ func (r *RedisClient) Get(id string) (string, error) {
 
 	return val, nil
 }
+
+func (r *RedisClient) Ping(ctx context.Context) *redis.StatusCmd {
+	return r.client.Ping(ctx)
+}

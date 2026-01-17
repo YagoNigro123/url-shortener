@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,30 +18,48 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Println("No . env file found, assuming variables are set in evironment")
+		log.Println("No .env file found, assuming variables are set in environment")
 	}
 
-	dbURL := os.Getenv("DB_URL")
+	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Fatal("DB_URL environment variable is not set")
+		dbURL = os.Getenv("DB_URL")
+	}
+
+	if dbURL == "" {
+		log.Fatal("Error: DATABASE_URL (or DB_URL) environment variable is not set")
 	}
 
 	postgresStore, err := store.NewPostgresStore(dbURL)
 	if err != nil {
-		log.Fatalf("error with conect to db: %v", err)
+		log.Fatalf("Error connecting to DB: %v", err)
 	}
-
 	defer postgresStore.Close()
 
-	redisAddr := os.Getenv("REDIS_ADDR")
-	if redisAddr == "" {
-		redisAddr = "localhost:6379"
+	redisHost := os.Getenv("REDISHOST")
+	redisPort := os.Getenv("REDISPORT")
+	redisPassword := os.Getenv("REDISPASSWORD")
+
+	var redisAddr string
+
+	if redisHost != "" && redisPort != "" {
+		redisAddr = fmt.Sprintf("%s:%s", redisHost, redisPort)
+	} else {
+		redisAddr = os.Getenv("REDIS_ADDR")
+		if redisAddr == "" {
+			redisAddr = "localhost:6379"
+		}
 	}
 
-	redisClient := store.NewRedisClient(redisAddr, "")
+	redisClient := store.NewRedisClient(redisAddr, redisPassword)
+
+	if _, err := redisClient.Ping(context.Background()).Result(); err != nil {
+		log.Printf("Warning: Could not connect to Redis at %s: %v", redisAddr, err)
+	} else {
+		fmt.Println("Connected to Redis successfully")
+	}
 
 	svc := core.NewService(postgresStore, redisClient)
-
 	handler := api.NewHandler(svc)
 
 	r := chi.NewRouter()
@@ -62,8 +81,8 @@ func main() {
 		port = "8080"
 	}
 
-	fmt.Println("Server running on port 8080")
-	if err := http.ListenAndServe(":8080", r); err != nil {
-		log.Fatal("Server failed: %v", err)
+	fmt.Printf("Server running on port %s\n", port)
+	if err := http.ListenAndServe(":"+port, r); err != nil {
+		log.Fatal("Server failed: ", err)
 	}
 }
