@@ -50,6 +50,13 @@ func main() {
 	r.Post("/api/shorten", handler.CreateLink)
 	r.Get("/{id}", handler.Redirect)
 
+	fileServer := http.FileServer(http.Dir("./public"))
+	r.Handle("/public/*", http.StripPrefix("/public", fileServer))
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "public/index.html")
+	})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
