@@ -1,12 +1,36 @@
-# URL Shortener (High Performance)
+# 🚀 High-Performance URL Shortener
 
-## Technologies
-* **System Core:** Golang (Concurrency handling).
-* **SQL Database:** PostgreSQL (Persistent storage).
-* **NoSQL / Cache:** Redis (In-memory cache for high-speed retrieval).
-* **Infrastructure:** Docker & Docker Compose.
-* **Event Processing:** Asynchronous analytics using Go routines.
+A scalable, distributed URL shortener service built with Go, focusing on performance, clean architecture, and cloud-native practices.
 
+**Live Demo:** [https://url-shortener-production-38b4.up.railway.app](https://url-shortener-production-38b4.up.railway.app) 🔗
+
+---
+
+## 🛠 Tech Stack & Architecture
+
+- **Core Language:** Go (Golang) 1.25 (Concurrency handling)
+- **Architecture:** Hexagonal Architecture (Ports & Adapters)
+- **Database:** PostgreSQL (Persistent storage)
+- **Caching:** Redis (Cache-Aside pattern for high-speed retrieval)
+- **DevOps:** Docker, Docker Compose (Multistage Builds)
+- **Frontend:** Vanilla JS + CSS3
+- **Cloud:** Railway (CI/CD)
+
+## 🔌 API Usage
+
+### Shorten URL
+```bash
+curl -X POST http://localhost:8080/api/shorten \
+     -H "Content-Type: application/json" \
+     -d '{"original_url": "[https://www.youtube.com/watch?v=dQw4w9WgXcQ](https://www.youtube.com/watch?v=dQw4w9WgXcQ)"}'
+```
+### Response
+```
+{
+  "id": "aBcD12",
+  "short_url": "http://localhost:8080/aBcD12"
+}
+```
 ## Project Journal
 
 ### Day 1: Infrastructure as Code
@@ -58,6 +82,24 @@ Optimized the system for high concurrency using **Redis** as a caching layer.
 * **Architecture:** Injected `RedisClient` as a dependency into the Service, maintaining clean architecture principles.
 * **Result:** Drastically reduced database load and improved response times for frequently accessed links.
 
-curl -X POST http://localhost:8080/api/shorten \
-     -H "Content-Type: application/json" \
-     -d '{"original_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}'
+### Day 8: DevOps & Dockerization
+Transitioned from local execution to a containerized environment.
+* **Multistage Build:** Created a `Dockerfile` that compiles the Go binary in a builder stage and deploys it into a lightweight **Alpine Linux** image (reducing image size significantly).
+* **Orchestration:** Updated `docker-compose` to run the Application, PostgreSQL, and Redis in a unified network.
+* **Networking:** Configured service-to-service communication using Docker DNS names (`db`, `cache`) instead of localhost.
+
+### Day 9: Frontend & Static Assets
+Developed a user-facing interface to make the tool accessible.
+
+* **Modularization:** Separated logic (JS), styles (CSS), and structure (HTML) in a public/ directory.
+
+* **Integration:** Configured Go's http.FileServer to serve static assets alongside the API.
+
+### Day 10: Cloud Deployment (CI/CD)
+Deployed the full stack application to the cloud using Railway.
+
+* **CI/CD:** Configured automatic deployments from GitHub.
+
+* **Production Config:** Managed environment variables and secrets securely in the cloud.
+
+* **Public Access:** Generated a live SSL production URL.
